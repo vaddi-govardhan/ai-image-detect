@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Analysis Result</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  max-width: 800px;
+  margin: 50px auto;
+  padding: 20px;
+  background: #f5f5f5;
+}
+.container {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+img {
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+button {
+  background: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+button:hover {
+  background: #45a049;
+}
+button:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+.loading {
+  display: none;
+  margin-top: 10px;
+  color: #666;
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h2>Image Analysis Result</h2>
+
+<!-- Image preview -->
+<div>
+  <h3>Uploaded Image:</h3>
+  <img id="imagePreview" src="" alt="Uploaded Image" width="400">
+</div>
+
+<!-- Analysis results -->
+<h3>Detected Objects:</h3>
+<ul id="objectsList"></ul>
+
+<h3>AI Explanation Summary:</h3>
+<div id="summaryContainer" style="margin-top: 10px;">
+  <p id="summaryText"
+     style="background:#f5f5f5;
+            padding:12px;
+            border-radius:8px;
+            box-shadow:0 2px 8px rgba(0,0,0,0.1);
+            font-size:15px;
+            line-height:1.5;">
+  </p>
+</div>
+
+<h3>AI Detection Result:</h3>
+<p id="aiProb"></p>
+
+<!-- Grad-CAM Visualization Section -->
+<h3>Grad-CAM Visualization:</h3>
+<button id="gradcamBtn" onclick="generateGradCAM()">Show Grad-CAM</button>
+<div class="loading" id="loadingMsg">⏳ Generating Grad-CAM...</div>
+<div id="gradcamResult" style="margin-top: 10px;"></div>
+
+<div style="margin-top: 30px;">
+  <a href="index.html" style="color: #4CAF50; text-decoration: none; font-weight: bold;">← Upload Another Image</a>
+</div>
+</div>
+
+<script>
+// ✅ Single data parsing and display logic
+let data = null;
+
+// Safely get and parse JSON data from localStorage
+try {
+  const stored = localStorage.getItem("imageResult");
+  if (stored && stored.trim() !== "") {
+    data = JSON.parse(stored);
+  } else {
+    console.warn("⚠️ No data found in localStorage for 'imageResult'");
+  }
+} catch (err) {
+  console.error("❌ JSON parse error:", err);
+  data = null;
+}
+
+if (!data) {
+  document.body.innerHTML = `
+    <div class='container'>
+      <p style="color:red;">⚠️ No analysis data found or invalid data format.</p>
+      <a href="index.html" style="color: #4CAF50; text-decoration: none; font-weight: bold;">← Go Back</a>
+    </div>
+  `;
+} else {
+  // ✅ Show image preview
+  document.getElementById("imagePreview").src = `http://127.0.0.1:7860/uploads/${data.filename}`;
+  
+  // ✅ Show detected objects
+  const objectsList = document.getElementById("objectsList");
+  if (data.objects && data.objects.length > 0) {
+    data.objects.forEach(obj => {
+      const li = document.createElement("li");
+      li.innerText = obj;
+      objectsList.appendChild(li);
+    });
+  } else {
+    objectsList.innerHTML = "<li>No objects detected</li>";
+  }
+  
+  // ✅ Show summary
+  document.getElementById("summaryText").innerText = data.summary || "No summary available";
+  
+  // ✅ Show AI probability
+  const aiProb = data.ai_probability;
+  const aiProbElement = document.getElementById("aiProb");
+  if (aiProb !== undefined && aiProb !== null) {
+    const percentage = (aiProb * 100).toFixed(2);
+    const prediction = data.prediction || (aiProb > 0.5 ? "AI-generated" : "Real");
+    aiProbElement.innerHTML = `
+      <strong>${prediction}</strong><br>
+      AI Probability: ${percentage}%<br>
+      Real Probability: ${((1 - aiProb) * 100).toFixed(2)}%
+    `;
+  } else {
+    aiProbElement.innerText = "AI detection not available";
+  }
+}
+
+// ✅ Grad-CAM generation function
+async function generateGradCAM() {
+  if (!data) {
+    alert("No image found. Please analyze an image first.");
+    return;
+  }
+
+  const button = document.getElementById("gradcamBtn");
+  const loadingMsg = document.getElementById("loadingMsg");
+  const resultDiv = document.getElementById("gradcamResult");
+  
+  // Disable button and show loading
+  button.disabled = true;
+  button.innerText = "Generating...";
+  loadingMsg.style.display = "block";
+  resultDiv.innerHTML = "";
+
+  try {
+    // Fetch the original image file
+    const fileResponse = await fetch(`http://127.0.0.1:7860/uploads/${data.filename}`);
+    
+    if (!fileResponse.ok) {
+      throw new Error("Failed to fetch image file");
+    }
+    
+    const blob = await fileResponse.blob();
+    
+    // Create FormData with the file
+    const formData = new FormData();
+    const fileExtension = data.filename.split('.').pop().toLowerCase();
+    const mimeTypes = {
+      'jpg': 'image/jpeg',
+      'jpeg': 'image/jpeg',
+      'png': 'image/png',
+      'gif': 'image/gif',
+      'webp': 'image/webp'
+    };
+    const mimeType = mimeTypes[fileExtension] || 'image/jpeg';
+    
+    const file = new File([blob], data.filename, { type: mimeType });
+    formData.append("file", file);
+
+    console.log("Sending file:", data.filename, "Type:", mimeType);
+
+    // Request Grad-CAM visualization
+    const response = await fetch("http://127.0.0.1:7860/gradcam", {
+      method: "POST",
+      body: formData
+    });
+
+    console.log("Response status:", response.status);
+
+    if (!response.ok) {
+      let errorDetail = `Server error: ${response.status}`;
+      try {
+        const errorData = await response.json();
+        console.error("Server error response:", errorData);
+        errorDetail = JSON.stringify(errorData, null, 2);
+      } catch (e) {
+        const errorText = await response.text();
+        console.error("Server error text:", errorText);
+        errorDetail = errorText || errorDetail;
+      }
+      throw new Error(errorDetail);
+    }
+
+    const result = await response.json();
+    console.log("Grad-CAM result:", result);
+
+    // Display Grad-CAM image
+    if (result.gradcam_image) {
+      const imagePath = result.gradcam_image.startsWith('/') 
+        ? result.gradcam_image.substring(1) 
+        : result.gradcam_image;
+      
+      resultDiv.innerHTML = `
+        <img src="http://127.0.0.1:7860/${imagePath}" 
+             alt="Grad-CAM Visualization"
+             width="400"
+             style="border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.2);margin-top:10px;"
+             onerror="this.onerror=null; this.alt='Failed to load Grad-CAM image';">
+        <p style="color: #666; font-size: 14px; margin-top: 10px;">
+          Grad-CAM highlights the regions that influenced the AI detection model's decision.
+        </p>
+      `;
+      button.innerText = "Regenerate Grad-CAM";
+    } else {
+      throw new Error("No Grad-CAM image path in response");
+    }
+    
+  } catch (error) {
+    console.error("Full error details:", error);
+    
+    let errorMessage = error.message;
+    
+    resultDiv.innerHTML = `
+      <div style="background: #fee; padding: 15px; border-radius: 5px; border: 1px solid #fcc;">
+        <p style="color: red; font-weight: bold;">❌ Error generating Grad-CAM</p>
+        <pre style="color: #600; font-size: 12px; overflow-x: auto;">${errorMessage}</pre>
+        <p style="color: #666; font-size: 14px; margin-top: 10px;">
+          Please check the browser console (F12) for full error details.
+        </p>
+      </div>
+    `;
+    button.innerText = "Retry Grad-CAM";
+  } finally {
+    button.disabled = false;
+    loadingMsg.style.display = "none";
+  }
+}
+</script>
+<script>
+  // Safely load JSON result from localStorage
+  
+  try {
+    const stored = localStorage.getItem("imageResult");
+    if (stored && stored.trim() !== "") {
+      data = JSON.parse(stored);
+    }
+  } catch (err) {
+    console.error("❌ Failed to parse localStorage:", err);
+  }
+
+  if (!data) {
+    document.body.innerHTML = `
+      <p style="color:red;">⚠️ No analysis data found. Please upload an image first.</p>
+      <a href="index.html">Go Back</a>
+    `;
+  } else {
+    // === Show uploaded image ===
+    document.getElementById("imagePreview").src =
+      `http://127.0.0.1:7860/uploads/${data.filename}`;
+
+    // === Show detected objects ===
+    const list = document.getElementById("objectsList");
+    data.objects.forEach(obj => {
+      const li = document.createElement("li");
+      li.textContent = obj;
+      list.appendChild(li);
+    });
+
+    // === AI probability ===
+    document.getElementById("aiProb").innerText =
+      (data.ai_probability * 100).toFixed(2) + "%";
+
+    // === Summary text ===
+    document.getElementById("summaryText").innerText =
+      data.summary || "Summary not available.";
+
+    // === Auto-display Grad-CAM ===
+    if (data.gradcam_image) {
+      const gradcamDiv = document.createElement("div");
+      gradcamDiv.innerHTML = `
+        <h3>Grad-CAM Visualization:</h3>
+        <img src="http://127.0.0.1:7860${data.gradcam_image}"
+             width="400"
+             style="border-radius:10px;
+                    margin-top:10px;
+                    box-shadow:0 2px 10px rgba(0,0,0,0.25);">
+      `;
+      document.body.appendChild(gradcamDiv);
+    }
+  }
+</script>
+
+
+</body>
+</html>

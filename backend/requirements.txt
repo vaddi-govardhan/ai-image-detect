@@ -1,0 +1,28 @@
+# --- Core Backend Framework ---
+fastapi==0.115.0
+uvicorn==0.38.0
+python-multipart==0.0.20
+python-dotenv==1.0.1
+
+# --- Deep Learning and Vision ---
+torch==2.8.0
+torchvision==0.23.0
+ultralytics==8.3.217  # YOLO
+safetensors==0.6.2
+
+# --- HuggingFace / Transformers ---
+transformers==4.57.1
+datasets==4.1.1
+tqdm==4.67.1
+
+# --- Image and Data Processing ---
+opencv-python==4.11.0.86
+pillow==10.2.0
+numpy==1.26.4
+
+# --- Google Gemini API ---
+google-generativeai==0.8.5
+
+# --- Optional Utilities ---
+matplotlib==3.9.2
+evaluate==0.4.2

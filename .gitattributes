@@ -1,0 +1,4 @@
+vit-ai-vs-real-model/** filter=lfs diff=lfs merge=lfs -text
+*.safetensors filter=lfs diff=lfs merge=lfs -text
+backend/vit-ai-vs-real-model/*.safetensors filter=lfs diff=lfs merge=lfs -text
+backend/vit-ai-vs-real-model/model.safetensors filter=lfs diff=lfs merge=lfs -text
