@@ -200,7 +200,7 @@ UPLOAD_FOLDER = "/tmp/uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Serve uploaded images as static files
-app.mount("/uploads", StaticFiles(directory=UPLOAD_FOLDER), name="uploads")
+# app.mount("/uploads", StaticFiles(directory=UPLOAD_FOLDER), name="uploads")
 
 # ========================================
 # Endpoints
@@ -391,7 +391,7 @@ async def explain_classification(request: ExplanationRequest):
                 "message": f"Failed to generate explanation: {str(e)}"
             }
         )
-
+app.mount("/uploads", StaticFiles(directory=UPLOAD_FOLDER), name="uploads")
 
 app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
 # ========================================
