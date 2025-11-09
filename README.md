@@ -7,6 +7,10 @@ sdk: docker
 app_port: 7860
 ---
 
+-----
+
+\
+
 # 🚀 AI Image Analyzer
 
 [![Hugging Face Spaces](https://img.shields.io/badge/Hugging%20Face-%F0%9F%A4%97%20Spaces-blue)](https://huggingface.co/spaces/fysiki/ai-image-detector)
@@ -25,7 +29,7 @@ This project is a complete AI-powered tool built for a university presentation. 
 
 ## ✨ Core Features
 
-* **AI vs. Real Classification:** Uses a fine-tuned **Vision Transformer (ViT)** model to classify an image as "AI-generated" or "Real" and provides a confidence score.
+* **AI vs. Real Classification:** Uses a **Vision Transformer (ViT)** model fine-tuned on the `ateeqq/ai-vs-human-image-detector` dataset to classify an image as "AI-generated" or "Real" and provide a confidence score.
 * **Object Detection:** Employs **YOLOv8** to identify and list common objects found in the image.
 * **Explainable AI (XAI):** Generates a **Grad-CAM** (Gradient-weighted Class Activation Mapping) visualization. This heatmap shows exactly which parts of the image the ViT model focused on to make its decision.
 * **AI-Powered Summary:** Uses the **Google Gemini API** to generate a human-readable summary that syntesizes all the findings (classification, objects, and Grad-CAM) into a coherent explanation.
@@ -69,3 +73,57 @@ This project is a complete AI-powered tool built for a university presentation. 
 ```bash
 git clone [https://github.com/142502022/ai-image-detect.git](https://github.com/142502022/ai-image-detect.git)
 cd ai-image-detect
+````
+
+### 3\. Download the 300MB Model File
+
+This project uses Git LFS for the large ViT model.
+
+```bash
+# Install LFS
+git lfs install
+
+# Pull the large files
+git lfs pull
+```
+
+You should now see `model.safetensors` inside the `backend/vit-ai-vs-real-model` folder.
+
+### 4\. Set Up the Environment
+
+```bash
+# Create a virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Install all Python dependencies
+pip install -r backend/requirements.txt
+```
+
+### 5\. Configure Environment Variables
+
+Create a file named `.env` in the root of the project:
+
+```
+# Create this file
+nano .env
+```
+
+Add your Google API key to it:
+
+```
+GOOGLE_API_KEY=AIza...
+```
+
+### 6\. Run the Server
+
+The FastAPI app is configured to serve both the API and the frontend files.
+
+```bash
+uvicorn backend.main:app --reload --port 7860
+```
+
+Open your browser to **`http://127.0.0.1:7860`**
+
+```
+```
