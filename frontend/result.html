@@ -214,10 +214,10 @@ async function generateGradCAM() {
     console.log("Grad-CAM result:", result);
 
     // Display Grad-CAM image
-    if (result.gradcam_image) {
-      const imagePath = result.gradcam_image.startsWith('/') 
-        ? result.gradcam_image.substring(1) 
-        : result.gradcam_image;
+    if (result.gradcam_image_url) {
+      const imagePath = result.gradcam_image_url.startsWith('/') 
+        ? result.gradcam_image_url.substring(1) 
+        : result.gradcam_image_url;
       
       resultDiv.innerHTML = `
         <img src="/${imagePath}" 
