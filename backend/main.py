@@ -196,7 +196,7 @@ def generate_gemini_summary(
 # ========================================
 # Upload Folder Setup
 # ========================================
-UPLOAD_FOLDER = "uploads"
+UPLOAD_FOLDER = "/tmp/uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Serve uploaded images as static files
