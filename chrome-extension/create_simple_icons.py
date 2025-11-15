@@ -1,0 +1,130 @@
+#!/usr/bin/env python3
+"""
+Generate simple placeholder icons for the Chrome extension
+Creates minimal valid PNG files without requiring PIL
+"""
+
+import base64
+import os
+
+# Base64 encoded simple purple icon (16x16)
+icon16_base64 = """
+iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlz
+AAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAADeSURB
+VDiNpdO9SgNREIbhZxOTGAQLC0EQC7HwBxS0srISb8BbsLOy9AqsLLxAWzsRC0uJhY2FjYUgCBZB
+EEFMjMnuejYmm2STxQ8Ow5mZd2Y+ZsaIRqPRKgqCGXSwgxPs4RO/+MEBdjGNGspYxjpe8IY3fOAV
+m1jCBKZwg1f0cI8BHtHHC5axgDr+8IlvDDHEA/ZxgxnMoo4BRjjFNroY4AxzqKGEMk5wjgvcoYs+
+jtDCIs5wjRa6+MIvJjGGDi7RwgsuUUIJB3jHN35wjjYW8Y8FzOMf05jADKbxD/gHYrFmIJ3yqeMAAAAASUVORK5CYII=
+"""
+
+# Base64 encoded simple purple icon (48x48)
+icon48_base64 = """
+iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABHNCSVQICAgIfAhkiAAAAAlwSFlz
+AAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAKfSURB
+VGiB7Zm9bhNBEMd/d/a5c4IdUyBRUFDQISEQJUWKlDR5AF6BLi1P4KegnQegoaRKQ0WBRA0lFQVS
+aKiAIkGKHWzs+75bCo7Pfrt3GyOFW2l1p9n9/e/uzOzuQaVSqVQqleofIy8hM8sAG8AK0AXWgQXg
+DHgJ7AEfgXPgFJhPKLMPHAJ7wCHwA/gKfAE+Az1gwsyumdm6pGsAc8BdYBN4BrwGPhGK+gbsAh+A
+L8ABMAQGwC/gBPgMvAW2ga/AHaAD3APWgHvAPWAV6AArgfNlYDEoswC0gbZzvgxMA03gBtAK3plF
+4iZwO6HMVeCucy4BR8B74C3wATgOZI6BY+AdcOCUaQBL8T4StwVcATrA7aBMC2gCC04ZAWvOZRZ4
+AMwF79y46LyXAmuRch2n7BWnTMNpawO4SthHEphJkbkWKXMbmE6Ruc5E+4gX0C5RZhqYTZGZBpru
+Oksc50bO9qZTZhHoplDLqYsEH0ma0gw+Ar8J//hxBoQ/5jShH/8h7HOoNcJpN0n+EfcJ53C77H9C
+p5RzyNwIUqczwKOEMk+d9zM3c7YP2XuAv6bI7MfqxD/BdqrMo4TtR8Ca5/ZfAI+TdgA/ctZ/Stpe
+dbbvJGzfcd6rA7sRmV3gZcxgjPC/+9a/e9Y/9Kx/5Fl/z7O+TujTnjzx3P7Qs/5Tz/qHnvUPPOv3
+POsf+tXf8tx+33P7fc+28Z3YN+bqwNqeKy/d74k88z6g51n/xLP+qWf9Y8/6x571Dzzr73rW3/Os
+v+9Z/4Fn/T3P+j3P+l3P+l3P+t24ztLT7G8DT4BnwFvC6fYrsEPYhz8QzvlDwtPtYWzB/5Tw5+wC
+24T/K2aBBeBmcPrnCaeOL5wyu4Sn237pnVQqlUqlUvkf/AH5YbyVKfb1ggAAAABJRU5ErkJggg==
+"""
+
+# Base64 encoded simple purple icon (128x128)
+icon128_base64 = """
+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
+AAAAAElFTkSuQmCC
+"""
+
+def create_icon(base64_data, output_path):
+    """Decode base64 and write to file"""
+    # Remove whitespace and newlines
+    base64_data = base64_data.replace('\n', '').replace(' ', '')
+
+    # Decode
+    icon_data = base64.b64decode(base64_data)
+
+    # Write to file
+    with open(output_path, 'wb') as f:
+        f.write(icon_data)
+
+    print(f'Created icon: {output_path}')
+
+# Create icons directory if it doesn't exist
+icons_dir = os.path.join(os.path.dirname(__file__), 'icons')
+os.makedirs(icons_dir, exist_ok=True)
+
+# Create icons in different sizes
+create_icon(icon16_base64, os.path.join(icons_dir, 'icon16.png'))
+create_icon(icon48_base64, os.path.join(icons_dir, 'icon48.png'))
+create_icon(icon128_base64, os.path.join(icons_dir, 'icon128.png'))
+
+print('All icons created successfully!')

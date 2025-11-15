@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Image Detector - Settings</title>
+  <link rel="stylesheet" href="css/options.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>AI Image Detector Settings</h1>
+      <p>Configure your extension preferences</p>
+    </header>
+
+    <main>
+      <div class="card">
+        <h2>API Configuration</h2>
+        <p class="description">
+          Enter the URL of your AI Image Detection API server.
+          The default is set to the hosted HuggingFace Space.
+        </p>
+
+        <div class="form-group">
+          <label for="apiUrl">API Base URL</label>
+          <input
+            type="text"
+            id="apiUrl"
+            placeholder="https://fysiki-ai-image-detector.hf.space"
+            value="https://fysiki-ai-image-detector.hf.space"
+          >
+          <small>Example: https://fysiki-ai-image-detector.hf.space or http://localhost:7860</small>
+        </div>
+
+        <button id="testConnection" class="btn-secondary">Test Connection</button>
+        <div id="connectionStatus" class="hidden"></div>
+      </div>
+
+      <div class="card">
+        <h2>About</h2>
+        <p class="description">
+          AI Image Detector uses advanced machine learning to analyze images and determine
+          if they are AI-generated or real. The extension uses Vision Transformer (ViT) models
+          for classification and provides detailed explanations.
+        </p>
+
+        <div class="info-grid">
+          <div class="info-item">
+            <strong>Version</strong>
+            <span>1.0.0</span>
+          </div>
+          <div class="info-item">
+            <strong>Model</strong>
+            <span>Vision Transformer (ViT)</span>
+          </div>
+          <div class="info-item">
+            <strong>Object Detection</strong>
+            <span>YOLOv8</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>How to Use</h2>
+        <ol class="instructions">
+          <li>Right-click on any image on a webpage</li>
+          <li>Select "Analyze with AI Image Detector" from the context menu</li>
+          <li>Wait for the analysis to complete (usually takes 2-5 seconds)</li>
+          <li>View the results in the extension popup</li>
+        </ol>
+      </div>
+
+      <div class="actions">
+        <button id="saveBtn" class="btn-primary">Save Settings</button>
+        <button id="resetBtn" class="btn-secondary">Reset to Defaults</button>
+      </div>
+
+      <div id="saveStatus" class="hidden"></div>
+    </main>
+  </div>
+
+  <script src="js/options.js"></script>
+</body>
+</html>

@@ -62,6 +62,22 @@ This project is a complete AI-powered tool built for a university presentation. 
 
 ---
 
+## Chrome Extension
+
+A Chrome extension is included that allows you to analyze images directly from your browser. **Works out of the box with the hosted API** - no setup required!
+
+### Installation
+
+1. Open Chrome and go to `chrome://extensions/`
+2. Enable "Developer mode"
+3. Click "Load unpacked"
+4. Select the `chrome-extension` directory
+5. Right-click any image on the web and select "Analyze with AI Image Detector"
+
+The extension uses the hosted API by default (`https://fysiki-ai-image-detector.hf.space`). You can change this in the extension settings if you want to use a local server.
+
+---
+
 ## 💻 How to Run Locally
 
 ### 1. Prerequisites

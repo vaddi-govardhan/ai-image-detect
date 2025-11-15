@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Image Detector</title>
+  <link rel="stylesheet" href="css/popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>AI Image Detector</h1>
+    </header>
+
+    <div id="loading" class="hidden">
+      <div class="loader"></div>
+      <p>Analyzing image...</p>
+    </div>
+
+    <div id="welcome" class="welcome">
+      <div class="icon-large">🔍</div>
+      <p>Right-click on any image and select <strong>"Analyze with AI Image Detector"</strong></p>
+      <p class="hint">Results will appear here</p>
+    </div>
+
+    <div id="error" class="hidden error-container">
+      <div class="error-icon">⚠️</div>
+      <h3>Error</h3>
+      <p id="errorMessage"></p>
+      <button id="retryBtn" class="btn-secondary">Try Again</button>
+    </div>
+
+    <div id="results" class="hidden">
+      <!-- Original Image -->
+      <div class="image-preview">
+        <img id="originalImage" alt="Analyzed image">
+      </div>
+
+      <!-- Classification Result -->
+      <div class="result-card">
+        <div class="result-header">
+          <span id="resultLabel" class="label"></span>
+          <span id="resultConfidence" class="confidence"></span>
+        </div>
+        <div class="progress-bar">
+          <div id="progressFill" class="progress-fill"></div>
+        </div>
+      </div>
+
+      <!-- Detected Objects -->
+      <div id="objectsSection" class="section">
+        <h3>Detected Objects</h3>
+        <div id="objectsList" class="objects-list"></div>
+      </div>
+
+      <!-- AI Explanation -->
+      <div id="summarySection" class="section">
+        <h3>Analysis Summary</h3>
+        <p id="summaryText"></p>
+      </div>
+
+      <!-- Grad-CAM Visualization -->
+      <div id="gradcamSection" class="section hidden">
+        <h3>Attention Heatmap</h3>
+        <p class="hint">Areas the AI focused on during analysis</p>
+        <div class="image-preview">
+          <img id="gradcamImage" alt="Grad-CAM visualization">
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="actions">
+        <button id="newAnalysisBtn" class="btn-primary">Analyze Another</button>
+        <button id="optionsBtn" class="btn-secondary">Settings</button>
+      </div>
+    </div>
+
+    <footer>
+      <a href="#" id="settingsLink">⚙️ Settings</a>
+    </footer>
+  </div>
+
+  <script src="js/popup.js"></script>
+</body>
+</html>
