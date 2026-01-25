@@ -21,7 +21,6 @@ A full-stack web application to detect AI-generated images, identify objects, an
 
 ---
 
-![Project Screenshot]([PASTE YOUR SCREENSHOT URL HERE])
 
 ## 📖 About This Project
 
